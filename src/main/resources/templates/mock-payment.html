@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SePay Mock Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #007bff;
+        }
+
+        .payment-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .payment-info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            color: #007bff;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>SePay</h1>
+            <p>Mock Payment Gateway</p>
+        </div>
+
+        <div class="header">
+            <h2>Payment Confirmation</h2>
+        </div>
+
+        <div class="payment-info">
+            <h3>Order Details</h3>
+            <p><strong>Order Number:</strong> <span th:text="${orderNumber}"></span></p>
+            <div class="amount">
+                Amount: $<span th:text="${amount}"></span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-success" onclick="processPayment(true)">
+                Pay Now
+            </button>
+            <button class="btn btn-danger" onclick="processPayment(false)">
+                Cancel Payment
+            </button>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This is a mock payment page for demonstration purposes.
+            In a real application, this would be handled by the actual SePay payment gateway.
+        </div>
+    </div>
+
+    <script>
+        function processPayment(success) {
+            const orderNumber = /*[[${orderNumber}]]*/ '';
+            const amount = /*[[${amount}]]*/ '';
+
+            if (success) {
+                // Simulate successful payment
+                alert('Payment successful! Redirecting to order confirmation...');
+                // In real implementation, this would call the webhook endpoint
+                simulateWebhook(orderNumber, 'success');
+            } else {
+                // Simulate cancelled payment
+                alert('Payment cancelled.');
+                // In real implementation, this would call the webhook endpoint
+                simulateWebhook(orderNumber, 'cancelled');
+            }
+        }
+
+        function simulateWebhook(orderNumber, status) {
+            // This simulates what the payment provider would do - call our webhook
+            const webhookData = {
+                transactionId: 'TXN' + Date.now(),
+                orderNumber: orderNumber,
+                amount: /*[[${amount}]]*/ '',
+                status: status.toUpperCase(), // SUCCESS, FAILED, CANCELLED
+                paymentMethod: 'BANK_TRANSFER',
+                signature: 'mock_signature_' + Date.now(),
+                timestamp: Date.now(),
+                description: 'Mock payment for order ' + orderNumber
+            };
+
+            fetch('/api/sepay/webhook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(webhookData)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        if (status === 'success') {
+                            window.location.href = '/payment-success?order=' + orderNumber;
+                        } else {
+                            window.location.href = '/payment-cancelled?order=' + orderNumber;
+                        }
+                    } else {
+                        alert('Error processing payment. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error processing payment. Please try again.');
+                });
+        }
+    </script>
+</body>
+
+</html>
