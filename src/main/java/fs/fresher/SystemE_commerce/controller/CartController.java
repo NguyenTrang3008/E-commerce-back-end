@@ -86,12 +86,4 @@ public class CartController {
         cartRequestService.handleClearCart(cartId, cookieCartId, sessionToken);
         return ResponseEntity.noContent().build();
     }
-    
-    @GetMapping("/session")
-    public ResponseEntity<CartResponse> getCartBySession(HttpServletRequest request) {
-        HttpSession session = request.getSession(true); // Create session if not exists
-        
-        CartResponse response = cartRequestService.handleGetCartBySession(session.getId());
-        return ResponseEntity.ok(response);
-    }
 }

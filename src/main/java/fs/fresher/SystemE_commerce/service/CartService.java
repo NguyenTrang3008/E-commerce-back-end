@@ -47,37 +47,6 @@ public class CartService {
         return mapToCartResponse(cart);
     }
     
-    public CartResponse getCartBySession(String sessionToken) {
-        Optional<Cart> cartOpt = cartRepository.findBySessionToken(sessionToken);
-        
-        Cart cart;
-        if (cartOpt.isPresent()) {
-            cart = cartOpt.get();
-            // Check if cart is expired
-            if (cart.isExpired()) {
-                // Delete expired cart and create new one
-                cartRepository.delete(cart);
-                cart = createNewCartWithSession(sessionToken);
-            }
-        } else {
-            // Create new cart for session
-            cart = createNewCartWithSession(sessionToken);
-        }
-        
-        // Reload cart with items
-        cart = cartRepository.findByCartIdWithItems(cart.getCartId())
-                .orElse(cart);
-        return mapToCartResponse(cart);
-    }
-    
-    private Cart createNewCartWithSession(String sessionToken) {
-        Cart newCart = new Cart();
-        newCart.setCartId(UUID.randomUUID().toString());
-        newCart.setSessionToken(sessionToken);
-        newCart.extendExpiration(cartTtlDays);
-        return cartRepository.save(newCart);
-    }
-    
     public CartResponse addItemToCart(String cartId, AddCartItemRequest request) {
         return addItemToCart(cartId, request, null);
     }

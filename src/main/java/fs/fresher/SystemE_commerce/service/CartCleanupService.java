@@ -151,6 +151,7 @@ public class CartCleanupService {
     
     /**
      * Clean up carts by session token (when session expires)
+     * Note: This is mainly for cleanup purposes, normal cart operations use /api/cart endpoint
      */
     @Transactional
     public Map<String, Object> cleanupCartsBySession(String sessionToken) {

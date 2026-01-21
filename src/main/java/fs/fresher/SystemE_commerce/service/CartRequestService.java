@@ -42,30 +42,8 @@ public class CartRequestService {
                 cartService.associateCartWithSession(finalCartId, sessionToken);
             }
             return cartService.getCart(finalCartId);
-        } else if (sessionToken != null) {
-            // Try to get cart by session
-            try {
-                return cartService.getCartBySession(sessionToken);
-            } catch (RuntimeException e) {
-                // No cart found for session, create new one
-                return cartService.getCart(null);
-            }
         } else {
-            // Create new cart
-            return cartService.getCart(null);
-        }
-    }
-    
-    /**
-     * Handle get cart by session
-     */
-    public CartResponse handleGetCartBySession(String sessionToken) {
-        log.debug("Getting cart by session: {}", sessionToken);
-        try {
-            return cartService.getCartBySession(sessionToken);
-        } catch (RuntimeException e) {
-            // No cart found for session, create new one
-            log.debug("No cart found for session {}, creating new cart", sessionToken);
+            // Create new cart (session will be associated automatically in getOrCreateCart)
             return cartService.getCart(null);
         }
     }
